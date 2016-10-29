@@ -17,12 +17,17 @@ public class Player : MonoBehaviour
     private int mJumps = 0;
     private bool mIsGrounded = false;
 
+    // health variables
+    public float MAX_HEALTH = 3.0f;
+    private int mHealth;
+
     public void Awake()
     {
         mRb2d = GetComponent<Rigidbody2D>();
         mAnimator = GetComponent<Animator>();
 
         mIsGrounded = true;
+        mHealth = MAX_HEALTH;
     }
 
     // Use this for initialization
@@ -39,6 +44,7 @@ public class Player : MonoBehaviour
 
     public void Update()
     {
+        CheckHealth();
         Move();
     }
 
@@ -47,6 +53,14 @@ public class Player : MonoBehaviour
         mIsGrounded = Physics2D.OverlapCircle(mGroundChecker.position, mGroundCheckRadius, mWhatIsGround);
         if (mIsGrounded)
             mJumps = 0;
+    }
+
+    private void CheckHealth()
+    {
+        if(mHealth <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void Move()
