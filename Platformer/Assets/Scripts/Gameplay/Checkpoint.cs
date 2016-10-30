@@ -1,21 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
-public class Checkpoint : MonoBehaviour {
-
-    private LevelManager levelManager;
-
-    public void Awake()
+public class Checkpoint : PlayerTrigger {
+    public override void Trigger()
     {
-        levelManager = FindObjectOfType<LevelManager>();
+        levelManager.SetCheckpoint(transform);
+
     }
 
-    public void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            GetComponent<Collider2D>().enabled = false;
-            levelManager.SetCheckpoint(transform);
-        }
-    }
 }
