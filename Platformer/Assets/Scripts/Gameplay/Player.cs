@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
     // components
     private Rigidbody2D mRb2d;
     private Animator mAnimator;
+    private SpriteRenderer mSpriteRenderer;
     public Transform mGroundChecker;
     private float mGroundCheckRadius = 0.1f;
     public LayerMask mWhatIsGround;
@@ -31,15 +32,17 @@ public class Player : MonoBehaviour
     {
         mRb2d = GetComponent<Rigidbody2D>();
         mAnimator = GetComponent<Animator>();
+        mSpriteRenderer = GetComponent<SpriteRenderer>();
 
         mIsGrounded = true;
         mHealth = MAX_HEALTH;
     }
 
-    // Use this for initialization
-    void Start()
+    private IEnumerator DamageFlash(float dt)
     {
-
+        mSpriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(dt);
+        mSpriteRenderer.color = Color.white;
     }
 
     // Update is called once per frame
@@ -64,11 +67,13 @@ public class Player : MonoBehaviour
     {
         if (mIsKnockBackRight)
         {
-            mRb2d.velocity = new Vector2(-mKnockBackSpeed, mKnockBackSpeed);
+            //mRb2d.velocity = new Vector2(-mKnockBackSpeed, mKnockBackSpeed);
+            mRb2d.velocity = Vector2.left * mKnockBackSpeed;
         }
         else
         {
-            mRb2d.velocity = new Vector2(mKnockBackSpeed, mKnockBackSpeed);
+            // mRb2d.velocity = new Vector2(mKnockBackSpeed, mKnockBackSpeed);
+            mRb2d.velocity = Vector2.right * mKnockBackSpeed;
         }
     }
 
@@ -83,8 +88,10 @@ public class Player : MonoBehaviour
         mAnimator.SetBool("Grounded", mIsGrounded);
     }
 
-    public void TakeDamage()
+    public void TakeDamage(int dmg)
     {
+        mHealth -= dmg;
+
         if (mHealth <= 0)
         {
             Destroy(gameObject);
@@ -134,5 +141,17 @@ public class Player : MonoBehaviour
     {
         return mIsGrounded;
     }
+
+    public void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Enemy"))
+        {
+            TakeDamage(1);
+            mIsKnockBackRight = transform.position.x < other.transform.position.x;
+            EnableKnockBack();
+            StartCoroutine(DamageFlash(0.5f*mKnockBackTimer));
+        }
+    }
+
 
 }
