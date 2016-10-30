@@ -18,7 +18,7 @@ public class Player : MonoBehaviour
     private bool mIsGrounded = false;
 
     // health variables
-    public float MAX_HEALTH = 3.0f;
+    public int MAX_HEALTH = 3;
     private int mHealth;
 
     public void Awake()
@@ -44,7 +44,6 @@ public class Player : MonoBehaviour
 
     public void Update()
     {
-        CheckHealth();
         Move();
     }
 
@@ -53,11 +52,13 @@ public class Player : MonoBehaviour
         mIsGrounded = Physics2D.OverlapCircle(mGroundChecker.position, mGroundCheckRadius, mWhatIsGround);
         if (mIsGrounded)
             mJumps = 0;
+
+        mAnimator.SetBool("Grounded", mIsGrounded);
     }
 
-    private void CheckHealth()
+    public void TakeDamage()
     {
-        if(mHealth <= 0)
+        if (mHealth <= 0)
         {
             Destroy(gameObject);
         }
@@ -73,12 +74,16 @@ public class Player : MonoBehaviour
 
         SetFacingDirection(x);
 
-        if (Input.GetButtonDown("Jump"))
+        if(Mathf.Abs(x) > 0.1f)
         {
-            Debug.Log("Jump button");
+            mAnimator.SetBool("Running", true);
+        }
+        else
+        {
+            mAnimator.SetBool("Running", false);
         }
 
-        if (Input.GetButtonDown("Jump") && mJumps < MAX_JUMPS-1)
+        if (Input.GetButtonDown("Jump") && mJumps < MAX_JUMPS - 1)
         {
             Jump();
         }
