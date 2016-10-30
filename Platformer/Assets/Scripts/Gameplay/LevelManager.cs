@@ -9,18 +9,22 @@ public class LevelManager : MonoBehaviour
     private Transform currentCheckpoint;
     public Transform startPoint;
 
+    // private CameraFollow cmr;
+
     // lives & score
     public int lives = 3;
 
-    public void Awake()
+    public void Start()
     {
         currentCheckpoint = startPoint;
         SpawnPlayer();
+        //  cmr = GameObject.FindObjectOfType<CameraFollow>();
     }
 
     public void SpawnPlayer()
     {
         player = Instantiate(PlayerPrefab, currentCheckpoint.position, currentCheckpoint.rotation) as GameObject;
+        //  cmr.SetPlayer(player.transform);
     }
 
     public void SetCheckpoint(Transform t)
