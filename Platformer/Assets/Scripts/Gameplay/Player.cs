@@ -21,6 +21,12 @@ public class Player : MonoBehaviour
     public int MAX_HEALTH = 3;
     private int mHealth;
 
+    // knockback variables
+    public float mKnockBackSpeed;
+    private bool mIsKnockBackRight;
+    public float MAX_KNOCK_BACK_TIME;
+    public float mKnockBackTimer = 0.0f;
+
     public void Awake()
     {
         mRb2d = GetComponent<Rigidbody2D>();
@@ -44,8 +50,29 @@ public class Player : MonoBehaviour
 
     public void Update()
     {
-        Move();
+        if (mKnockBackTimer <= 0.0f)
+            Move();
+        else
+        {
+            KnockBack();
+        }
+
+        mKnockBackTimer -= Time.deltaTime;
     }
+
+    private void KnockBack()
+    {
+        if (mIsKnockBackRight)
+        {
+            mRb2d.velocity = new Vector2(-mKnockBackSpeed, mKnockBackSpeed);
+        }
+        else
+        {
+            mRb2d.velocity = new Vector2(mKnockBackSpeed, mKnockBackSpeed);
+        }
+    }
+
+    public void EnableKnockBack() { mKnockBackTimer = MAX_KNOCK_BACK_TIME; }
 
     private void CheckGrounded()
     {
@@ -74,7 +101,7 @@ public class Player : MonoBehaviour
 
         SetFacingDirection(x);
 
-        if(Mathf.Abs(x) > 0.1f)
+        if (Mathf.Abs(x) > 0.1f)
         {
             mAnimator.SetBool("Running", true);
         }
@@ -97,9 +124,15 @@ public class Player : MonoBehaviour
             transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
     }
 
-    private void Jump()
+    public void Jump()
     {
         mRb2d.velocity = new Vector2(mRb2d.velocity.x, mJumpForce);
         ++mJumps;
     }
+
+    public bool GetIsGrounded()
+    {
+        return mIsGrounded;
+    }
+
 }
