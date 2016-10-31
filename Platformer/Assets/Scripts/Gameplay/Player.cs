@@ -18,6 +18,11 @@ public class Player : MonoBehaviour
     private int mJumps = 0;
     private bool mIsGrounded = false;
 
+    // ladder variables
+    private bool mIsOnLadder = false;
+    public float mClimbSpeed;
+    private float mGravityStore;
+
     // health variables
     public int MAX_HEALTH = 3;
     private int mHealth;
@@ -36,6 +41,8 @@ public class Player : MonoBehaviour
 
         mIsGrounded = true;
         mHealth = MAX_HEALTH;
+
+        mGravityStore = mRb2d.gravityScale;
     }
 
     private IEnumerator DamageFlash(float dt)
@@ -53,12 +60,21 @@ public class Player : MonoBehaviour
 
     public void Update()
     {
-        if (mKnockBackTimer <= 0.0f)
-            Move();
+        if (!mIsOnLadder)
+        {
+            if (mKnockBackTimer <= 0.0f)
+                Move();
+            else
+            {
+                KnockBack();
+            }
+        }
         else
         {
-            KnockBack();
+            MoveLadder();
         }
+
+        UpdateAnimations();
 
         mKnockBackTimer -= Time.deltaTime;
     }
@@ -75,6 +91,17 @@ public class Player : MonoBehaviour
             // mRb2d.velocity = new Vector2(mKnockBackSpeed, mKnockBackSpeed);
             mRb2d.velocity = Vector2.right * mKnockBackSpeed;
         }
+    }
+
+    public void EnableIsOnLadder(bool b)
+    {
+        mIsOnLadder = b;
+        if (mIsOnLadder)
+        {
+            mRb2d.gravityScale = 0.0f;
+        }
+        else
+            mRb2d.gravityScale = mGravityStore;
     }
 
     public void EnableKnockBack() { mKnockBackTimer = MAX_KNOCK_BACK_TIME; }
@@ -98,6 +125,23 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void UpdateAnimations()
+    {
+        mAnimator.SetBool("Running", Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f);
+
+        mAnimator.SetBool("OnLadder", mIsOnLadder);
+
+        mAnimator.SetBool("Climbing", mIsOnLadder && Mathf.Abs(Input.GetAxis("Vertical")) > 0.1f);
+    }
+
+    private void MoveLadder()
+    {
+        //mRb2d.velocity = Vector2.zero;
+        float x = Input.GetAxis("Horizontal") * (mIsGrounded ? mSpeed : mClimbSpeed);
+        float y = Input.GetAxis("Vertical") * mClimbSpeed;
+        mRb2d.velocity = new Vector2(x, y);
+    }
+
     private void Move()
     {
         float x;
@@ -107,15 +151,6 @@ public class Player : MonoBehaviour
         mRb2d.velocity = new Vector2(mSpeed * x, mRb2d.velocity.y);
 
         SetFacingDirection(x);
-
-        if (Mathf.Abs(x) > 0.1f)
-        {
-            mAnimator.SetBool("Running", true);
-        }
-        else
-        {
-            mAnimator.SetBool("Running", false);
-        }
 
         if (Input.GetButtonDown("Jump") && mJumps < MAX_JUMPS - 1)
         {
@@ -149,7 +184,7 @@ public class Player : MonoBehaviour
             TakeDamage(1);
             mIsKnockBackRight = transform.position.x < other.transform.position.x;
             EnableKnockBack();
-            StartCoroutine(DamageFlash(0.5f*mKnockBackTimer));
+            StartCoroutine(DamageFlash(0.5f * mKnockBackTimer));
         }
     }
 
