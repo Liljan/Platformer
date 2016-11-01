@@ -125,6 +125,11 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void AddHealth(int h)
+    {
+        mHealth += h;
+    }
+
     private void UpdateAnimations()
     {
         mAnimator.SetBool("Running", Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f);

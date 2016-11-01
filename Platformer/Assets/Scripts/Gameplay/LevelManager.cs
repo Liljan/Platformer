@@ -9,6 +9,9 @@ public class LevelManager : MonoBehaviour
     private Transform currentCheckpoint;
     public Transform startPoint;
 
+    // score
+    private int score = 0;
+
     // private CameraFollow cmr;
 
     // lives & score
@@ -41,4 +44,7 @@ public class LevelManager : MonoBehaviour
             --lives;
         }
     }
+
+    public void AddScore(int s) { score += s; }
+    public void RemoveScore(int s) { score -= s; }
 }
